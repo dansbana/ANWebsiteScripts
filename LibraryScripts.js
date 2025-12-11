@@ -213,132 +213,37 @@
         }, intervalMs);
     }
 
-    function showAccountIdWhenRequested(user) {
-        if (!window.ShowAcctIds || !Array.isArray(window.ShowAcctIds)) return;
-    
-        // Normalize names for comparison
-        const namesToShow = window.ShowAcctIds.map(n => n.toLowerCase());
-    
-        // Try to find account-name elements
-        const selectors = [
-            "button.ant-btn-primary.styled_btn span", // desktop account button
-            ".ant-avatar-string div",                // avatar initials element
-            ".ant-drawer-title",                     // mobile drawer title
-        ];
-    
-        const accountNameElements = document.querySelectorAll(selectors.join(","));
-        if (!accountNameElements.length) return;
-    
-        accountNameElements.forEach(el => {
-            const text = el.textContent.trim().toLowerCase();
-    
-            const matches = namesToShow.some(name => text.includes(name));
-            if (!matches) return;
-    
-            // Prevent double-labeling
-            if (el.textContent.includes("ID:")) return;
-    
-            // Modify visible text
-            el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${window.version})`;
-        });
-    }
-
-
-
-    /**
-     * Patch fetch once and detect library accounts.
-     */
-    (function patchFetch() {
-    if (!window.fetch) return;
-
-    const originalFetch = window.fetch;
-
-    window.fetch = function patchedFetch(input, init) {
-        const url = typeof input === 'string' ? input : input && input.url;
-
-        const result = originalFetch.apply(this, arguments);
-
-        if (url && url.indexOf('/customer/session/get') !== -1) {
-        result.then(function (response) {
-            try {
-            const clone = response.clone();
-            clone.json().then(function (data) {
-                const user = data && data.user;
-                if (!user) return;
-// NEW: Always run this
-                showAccountIdWhenRequested(user);
-                const isLibraryTestAccount = libAccts.includes(user.corp_id);
-
-                if (isLibraryTestAccount) {
-                console.log('CustLibFunc: Library account detected');
-                isLibraryAccount = true;
-
-                // Run tweaks for whatever page we’re currently on
-                runLibTweaksForCurrentPage();
-                } else {
-                console.log('CustLibFunc: Non-library account.');
-                }
-            }).catch(function () { });
-            } catch (e) { }
-        }).catch(function () { });
-        }
-
-        return result;
-    };
-    })();
-
-    
-
     /**
      * Watch SPA-style navigation and re-run tweaks when URL changes.
      */
     (function hookSpaNavigation() {
-    const origPushState = history.pushState;
-    const origReplaceState = history.replaceState;
+        const origPushState = history.pushState;
+        const origReplaceState = history.replaceState;
 
-    function onLocationChange() {
-        if (!isLibraryAccount) return;
+        function onLocationChange() {
+            if (!isLibraryAccount) return;
+            runLibTweaksForCurrentPage();
+        }
+
+        history.pushState = function () {
+            const ret = origPushState.apply(this, arguments);
+            onLocationChange();
+            return ret;
+        };
+
+        history.replaceState = function () {
+            const ret = origReplaceState.apply(this, arguments);
+            onLocationChange();
+            return ret;
+        };
+
+        window.addEventListener('popstate', onLocationChange);
+
+    })();
+
+    // kick things off immediately on load:
+    if (typeof runLibTweaksForCurrentPage === "function") {
         runLibTweaksForCurrentPage();
     }
-
-    history.pushState = function () {
-        const ret = origPushState.apply(this, arguments);
-        onLocationChange();
-        return ret;
-    };
-
-    history.replaceState = function () {
-        const ret = origReplaceState.apply(this, arguments);
-        onLocationChange();
-        return ret;
-    };
-
-    window.addEventListener('popstate', onLocationChange);
-
-        // ---- POKE THE APP TO RE-FETCH SESSION AFTER OUR PATCH ----
-
-        function pokeAppToRefetch() {
-            console.log('Poking app to refetch session via focus/visibility...');
-
-            // Try focus
-            try {
-            window.dispatchEvent(new Event('focus'));
-            } catch (e) {}
-
-            // Try visibilitychange (some apps use this)
-            try {
-            document.dispatchEvent(new Event('visibilitychange'));
-            } catch (e) {}
-        }
-
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            // Page is already loaded; wait a bit and poke
-            setTimeout(pokeAppToRefetch, 50);
-        } else {
-            // Wait for DOM ready, then poke
-            window.addEventListener('DOMContentLoaded', function () {
-            setTimeout(pokeAppToRefetch, 50);
-            });
-        }
-    })();
+    
 })();
