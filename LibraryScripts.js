@@ -3,22 +3,29 @@
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     let isLibraryAccount = false;
+    // Track our temporary re-apply interval for library tweaks
+    let libraryTweaksIntervalId = null;
 
     /**
      * Run the appropriate tweaks for the *current* page.
      * Safe to call multiple times – selectors just won't match on irrelevant pages.
      */
+
     function runLibTweaksForCurrentPage() {
-    console.log('CustLibFunc: runLibTweaksForCurrentPage on', location.pathname);
-
-    // Cart / modal / order confirmation tweaks (WP2 / WP3 etc)
-    libraryTweak();
-
-    // Orders list page (WP4-like) – only here do we need the watcher
-    if (location.pathname.startsWith("/account/order")) {
-        console.log('CustLibFunc: Order Summary Watcher Running');
-        startOrderSummaryWatcher();
-    }
+        console.log('CustLibFunc: runLibTweaksForCurrentPage on', location.pathname);
+    
+        // Cart / modal / order confirmation tweaks (WP2 / WP3 etc)
+        libraryTweak();
+    
+        // For Firefox / React re-renders: keep re-applying cart/modal tweaks
+        // for a short period so late renders don't bring old buttons back.
+        startLibraryTweaksForABit();
+    
+        // Orders list / order detail pages – summary tweaks (WP4-like)
+        if (location.pathname.startsWith("/account/order")) {
+            console.log('CustLibFunc: Order Summary Watcher Running');
+            startOrderSummaryWatcher();
+        }
     }
 
     function repElContent(selector, matchText, newHTML, listener) {
@@ -155,6 +162,31 @@
         );
     }
 
+    function startLibraryTweaksForABit() {
+        // Don't start multiple intervals
+        if (libraryTweaksIntervalId) return;
+    
+        let runs = 0;
+        const maxRuns = 20;       // 20 × 250ms = 5 seconds
+        const intervalMs = 250;
+    
+        libraryTweaksIntervalId = setInterval(() => {
+            runs++;
+    
+            try {
+                // This handles WP2 (modal/buttons) and WP3 (confirmation text)
+                libraryTweak();
+            } catch (e) {
+                console.error('CustLibFunc: libraryTweak error in interval', e);
+            }
+    
+            if (runs >= maxRuns) {
+                clearInterval(libraryTweaksIntervalId);
+                libraryTweaksIntervalId = null;
+            }
+        }, intervalMs);
+    }
+
     function startOrderSummaryWatcher() {
         let runs = 0;
         let shouldStop = false;
@@ -209,6 +241,8 @@
             el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id})`;
         });
     }
+
+
 
     /**
      * Patch fetch once and detect library accounts.
