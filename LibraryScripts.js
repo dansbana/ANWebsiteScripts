@@ -270,11 +270,11 @@
 
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
             // Page is already loaded; wait a bit and poke
-            setTimeout(pokeAppToRefetch, 200);
+            setTimeout(pokeAppToRefetch, 50);
         } else {
             // Wait for DOM ready, then poke
             window.addEventListener('DOMContentLoaded', function () {
-            setTimeout(pokeAppToRefetch, 200);
+            setTimeout(pokeAppToRefetch, 50);
             });
         }
     })();
