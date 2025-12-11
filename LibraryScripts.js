@@ -1,5 +1,6 @@
 (function () {
     
+    window.version = '1.1';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     let isLibraryAccount = false;
@@ -168,7 +169,7 @@
     
         let runs = 0;
         const maxRuns = 20;       // 20 × 250ms = 5 seconds
-        const intervalMs = 250;
+        const intervalMs = 125;
     
         libraryTweaksIntervalId = setInterval(() => {
             runs++;
@@ -238,7 +239,7 @@
             if (el.textContent.includes("ID:")) return;
     
             // Modify visible text
-            el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id})`;
+            el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${window.version})`;
         });
     }
 
