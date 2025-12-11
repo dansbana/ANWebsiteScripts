@@ -139,19 +139,23 @@
             'we will review your quote and comments',
             '<b>IMPORTANT NOTE: Your email confirmation will label this order a &quot;Quote Request,&quot; but we will process it as an order from your library.</b>'
         );
-    }
-
-    // WP4 – orders list summary text
-    function libraryTweakOrderSummary() {
-        repElContent(
-            'span',
-            'requested a quote',
-            '<strong>Order Type</strong> Library'
-        );
+        //'.ant-card-body div:not(:has(*))'
         repElContent(
             '.ant-card-body div',
             'requested a quote',
             'Standard library delivery'
+        );
+    }
+
+    // WP4 – orders list summary text
+    function libraryTweakOrderSummary() {
+
+        // the order of these replacements is important
+        // first the span should be replace and if not found, then the div should be replaced
+        repElContent(
+            'span',
+            'requested a quote',
+            '<strong>Order Type</strong> Library'
         );
     }
 
