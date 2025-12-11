@@ -1,0 +1,38 @@
+<script>
+function replaceButtonHTML(selector, html) {
+    // Update ALL matching buttons (desktop + mobile versions)
+    document.querySelectorAll(selector).forEach(btn => {
+      btn.innerHTML = html;
+    });
+}
+
+function hideButton(selector) {
+    document.querySelectorAll(selector).forEach(btn => {
+        btn.style.display = "none";
+    });
+}
+
+const schoolQuoteBtnSelector =
+    'aside.responsiveSummary button.ant-btn.ant-btn-default.ant-btn-block[style*="height: 50px"][style*="line-height: 16px"]';
+
+const SHIP_SELECTOR =  
+    'aside.responsiveSummary div[direction="horizontal"] button.ant-btn-default.checkout-btn';
+
+const PICKUP_SELECTOR =
+    'aside.responsiveSummary div[direction="horizontal"] button.ant-btn-primary.checkout-btn';
+
+const DELIVER_SELECTOR =
+    'aside.responsiveSummary button.ant-btn-default.ant-btn-block:not(.checkout-btn)';
+
+function libraryTweak() {
+    replaceButtonHTML(
+        schoolQuoteBtnSelector,
+        'Place Library Order'
+    );
+
+    hideButton(SHIP_SELECTOR);
+    hideButton(PICKUP_SELECTOR);
+    hideButton(DELIVER_SELECTOR);
+}
+</script>
+
