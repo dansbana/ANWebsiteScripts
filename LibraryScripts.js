@@ -224,6 +224,8 @@
     };
     })();
 
+    
+
     /**
      * Watch SPA-style navigation and re-run tweaks when URL changes.
      */
@@ -249,5 +251,31 @@
     };
 
     window.addEventListener('popstate', onLocationChange);
+
+        // ---- POKE THE APP TO RE-FETCH SESSION AFTER OUR PATCH ----
+
+        function pokeAppToRefetch() {
+            console.log('Poking app to refetch session via focus/visibility...');
+
+            // Try focus
+            try {
+            window.dispatchEvent(new Event('focus'));
+            } catch (e) {}
+
+            // Try visibilitychange (some apps use this)
+            try {
+            document.dispatchEvent(new Event('visibilitychange'));
+            } catch (e) {}
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            // Page is already loaded; wait a bit and poke
+            setTimeout(pokeAppToRefetch, 200);
+        } else {
+            // Wait for DOM ready, then poke
+            window.addEventListener('DOMContentLoaded', function () {
+            setTimeout(pokeAppToRefetch, 200);
+            });
+        }
     })();
 })();
