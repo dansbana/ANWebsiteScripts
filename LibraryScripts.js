@@ -15,7 +15,7 @@
     libraryTweak();
 
     // Orders list page (WP4-like) – only here do we need the watcher
-    if (location.pathname.startsWith("/account/orders")) {
+    if (location.pathname.startsWith("/account/order")) {
         console.log('CustLibFunc: Order Summary Watcher Running');
         startOrderSummaryWatcher();
     }
@@ -139,22 +139,19 @@
             'we will review your quote and comments',
             '<b>IMPORTANT NOTE: Your email confirmation will label this order a &quot;Quote Request,&quot; but we will process it as an order from your library.</b>'
         );
-        repElContent(
-            '.ant-card-body div:not(:has(*))',
-            'requested a quote',
-            'Standard library delivery'
-        );
     }
 
     // WP4 – orders list summary text
     function libraryTweakOrderSummary() {
-
-        // the order of these replacements is important
-        // first the span should be replace and if not found, then the div should be replaced
         repElContent(
             'span',
             'requested a quote',
             '<strong>Order Type</strong> Library'
+        );
+        repElContent(
+            '.ant-card-body div:not(:has(*))',
+            'requested a quote',
+            'Standard library delivery'
         );
     }
 
