@@ -180,6 +180,36 @@
         }, intervalMs);
     }
 
+    function showAccountIdWhenRequested(user) {
+        if (!window.ShowAcctIds || !Array.isArray(window.ShowAcctIds)) return;
+    
+        // Normalize names for comparison
+        const namesToShow = window.ShowAcctIds.map(n => n.toLowerCase());
+    
+        // Try to find account-name elements
+        const selectors = [
+            "button.ant-btn-primary.styled_btn span", // desktop account button
+            ".ant-avatar-string div",                // avatar initials element
+            ".ant-drawer-title",                     // mobile drawer title
+        ];
+    
+        const accountNameElements = document.querySelectorAll(selectors.join(","));
+        if (!accountNameElements.length) return;
+    
+        accountNameElements.forEach(el => {
+            const text = el.textContent.trim().toLowerCase();
+    
+            const matches = namesToShow.some(name => text.includes(name));
+            if (!matches) return;
+    
+            // Prevent double-labeling
+            if (el.textContent.includes("ID:")) return;
+    
+            // Modify visible text
+            el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id})`;
+        });
+    }
+
     /**
      * Patch fetch once and detect library accounts.
      */
@@ -200,7 +230,8 @@
             clone.json().then(function (data) {
                 const user = data && data.user;
                 if (!user) return;
-
+// NEW: Always run this
+                showAccountIdWhenRequested(user);
                 const isLibraryTestAccount = libAccts.includes(user.corp_id);
 
                 if (isLibraryTestAccount) {
