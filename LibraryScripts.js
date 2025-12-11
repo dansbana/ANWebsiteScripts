@@ -1,6 +1,6 @@
 (function () {
     const libAccts = [1627756];
-
+    console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     let isLibraryAccount = false;
 
@@ -116,73 +116,68 @@
     }
 
     function libraryTweak() {
-    // WP2 – modal entry point
-    repElContent(
-        SQTE_BTN_SEL,
-        'Request a school',
-        'Place Library Order',
-        () => setTimeout(tweakModal, 50)
-    );
+        // WP2 – modal entry point
+        repElContent(
+            SQTE_BTN_SEL,
+            'Request a school',
+            'Place Library Order',
+            () => setTimeout(tweakModal, 50)
+        );
 
-    hideBtn(SHIP_SEL, 'Ship');
-    hideBtn(PKUP_SEL, 'Pick up');
-    hideBtn(DEL_SEL, 'Deliver');
+        hideBtn(SHIP_SEL, 'Ship');
+        hideBtn(PKUP_SEL, 'Pick up');
+        hideBtn(DEL_SEL, 'Deliver');
 
-    // WP3 – order confirmation
-    repElContent(
-        '.ant-result-title span',
-        'your quote request has been submitted',
-        '<strong>Your order has been submitted.</strong><br/><br/>'
-    );
-    repElContent(
-        '.ant-result-subtitle div',
-        'we will review your quote and comments',
-        '<b>IMPORTANT NOTE: Your email confirmation will label this order a &quot;Quote Request,&quot; but we will process it as an order from your library.</b>'
-    );
-    repElContent(
-        '.ant-card-body div',
-        'requested a quote',
-        'Standard library delivery'
-    );
-    repElContent(
-        'span',
-        'requested a quote',
-        '<strong>Order Type</strong> Library'
-    );
+        // WP3 – order confirmation
+        repElContent(
+            '.ant-result-title span',
+            'your quote request has been submitted',
+            '<strong>Your order has been submitted.</strong><br/><br/>'
+        );
+        repElContent(
+            '.ant-result-subtitle div',
+            'we will review your quote and comments',
+            '<b>IMPORTANT NOTE: Your email confirmation will label this order a &quot;Quote Request,&quot; but we will process it as an order from your library.</b>'
+        );
     }
 
     // WP4 – orders list summary text
     function libraryTweakOrderSummary() {
-    repElContent(
-        'span',
-        'requested a quote',
-        '<strong>Order Type</strong> Library'
-    );
+        repElContent(
+            'span',
+            'requested a quote',
+            '<strong>Order Type</strong> Library'
+        );
+        repElContent(
+            '.ant-card-body div',
+            'requested a quote',
+            'Standard library delivery'
+        );
     }
 
     function startOrderSummaryWatcher() {
-    let runs = 0;
-    let shouldStop = false;
-    const maxRuns = 40;
-    const intervalMs = 250;
+        let runs = 0;
+        let shouldStop = false;
+        const maxRuns = 40;
+        const intervalMs = 250;
 
-    const id = setInterval(() => {
-        runs++;
-        libraryTweakOrderSummary();
+        const id = setInterval(() => {
+            runs++;
+            libraryTweakOrderSummary();
 
-        const replaced = Array.from(document.querySelectorAll('span'))
-        .some(el => {
-            const text = el.textContent.toLowerCase();
-            return text.includes('order type') && text.includes('library');
-        });
+            const replaced = Array.from(document.querySelectorAll('span'))
+            .some(el => {
+                const text = el.textContent.toLowerCase();
+                return text.includes('order type') && text.includes('library');
+            });
 
-        if (shouldStop || runs >= maxRuns) {
-        clearInterval(id);
-        }
-        if (replaced) {
-        shouldStop = true;
-        }
-    }, intervalMs);
+            if (shouldStop || runs >= maxRuns) {
+            clearInterval(id);
+            }
+            if (replaced) {
+            shouldStop = true;
+            }
+        }, intervalMs);
     }
 
     /**
