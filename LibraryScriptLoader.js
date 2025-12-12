@@ -105,6 +105,7 @@
                 clone
                   .json()
                   .then(function (data) {
+                    console.log("LibraryScriptLoader: Fetching session get data", data);
                     const user = data && data.user;
                     if (!user) return;
   
