@@ -107,6 +107,7 @@
                   .then(function (data) {
                     console.log("LibraryScriptLoader: Fetching session get data", data);
                     const user = data && data.user;
+                    console.log("LibraryScriptLoader: Fetching session get user", user);
                     if (!user) return;
   
                     // Make user globally available if scripts want it
