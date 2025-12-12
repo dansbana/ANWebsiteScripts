@@ -270,7 +270,7 @@
     
         // Cart / modal / order confirmation tweaks (WP2 / WP3 etc)
         libraryTweak();
-        observeCheckoutButtons();
+        //observeCheckoutButtons();
         observeModal();
     
         // For Firefox / React re-renders: keep re-applying cart/modal tweaks

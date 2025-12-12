@@ -1,6 +1,6 @@
 (function () {
     
-    window.version = 'V1.0.10';
+    window.version = 'V1.0.16';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -103,6 +103,7 @@
     }
 
     function showAccountIdWhenRequested(user) {
+        console.log("showAccountIdWhenRequested: Showing account ID for user", user);
         if (!ShowAcctIds.length || !user) return;
     
         const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
@@ -123,9 +124,9 @@
     
           if (el.textContent.includes("ID:")) return; // avoid double-label
     
-          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id})`;
+          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${window.version})`;
         });
-      }
+      } 
 
     function libraryTweak() {
         // WP2 – modal entry point
@@ -269,7 +270,7 @@
     
         // Cart / modal / order confirmation tweaks (WP2 / WP3 etc)
         libraryTweak();
-        observeCheckoutButtons();
+        //observeCheckoutButtons();
         observeModal();
     
         // For Firefox / React re-renders: keep re-applying cart/modal tweaks
@@ -317,5 +318,40 @@
     if (typeof runLibTweaksForCurrentPage === "function") {
         runLibTweaksForCurrentPage();
     }
+
+    (function patchFetch() {
+        console.log("LibraryScript: Patching fetch");
+        if (!window.fetch) return;
+    
+        const originalFetch = window.fetch;
+    
+        window.fetch = function patchedFetch(input, init) {
+          const url = typeof input === "string" ? input : input && input.url;
+          console.log("LibraryScript: Fetching URL", url);
+          const result = originalFetch.apply(this, arguments);
+    
+          if (url && url.indexOf("/customer/session/get") !== -1) {
+            console.log("LibraryScript: Fetching session get");
+            result
+              .then(function (response) {
+                try {
+                  const clone = response.clone();
+                  clone
+                    .json()
+                    .then(function (data) {
+                      const user = data && data.user;
+                      if (!user) return;    
+                      console.log("LibraryScript: fetch causing tweaks to run");
+                      runLibTweaksForCurrentPage(user);
+                    })
+                    .catch(function () {});
+                } catch (e) {}
+              })
+              .catch(function () {});
+          }
+    
+          return result;
+        };
+      })();
     
 })();
