@@ -44,38 +44,71 @@
     }
   
     function loadLibraryScriptForUser(user) {
-      if (scriptLoaded || !user) return;
-  
-      const corpId = user.corp_id;
-      const isLibAcct   = libAccts.includes(corpId);
-      const isTestAcct  = testerLibAcct.includes(corpId);
-  
-      // Decide whether to load anything at all:
-      //   - Always load for tester accounts.
-      //   - Otherwise only load for libAccts.
-      const shouldLoad = isTestAcct || isLibAcct;
-      if (!shouldLoad) {
-        console.log("LibraryScriptLoader: Non-library account, not loading script.", corpId);
-        return;
-      }
-  
-      const chosenUrl = isTestAcct ? testLocation : prodLocation;
-  
-      console.log(
-        "LibraryScriptLoader: Loading",
-        isTestAcct ? "TEST" : "PROD",
-        "script for corp_id",
-        corpId,
-        "=>",
-        chosenUrl
-      );
-  
-      scriptLoaded = true;
-  
-      const s = document.createElement("script");
-      s.src = chosenUrl;
-      s.async = true;
-      document.head.appendChild(s);
+        let scriptLoaded = false;
+        let libCheckAttempts = 0;
+        const MAX_LIB_CHECK_ATTEMPTS = 40; // e.g. 40 × 100ms = 4s max
+      
+        function loadLibraryScriptForUser(user) {
+          if (scriptLoaded || !user) return;
+      
+          // IMPORTANT: read globals *now*, not at startup
+          const libAccts      = getArray("libAccts");
+          const testerLibAcct = getArray("testerLibAcct");
+      
+          // --- NEW: wait until libAccts is actually populated ---
+          if (!libAccts.length && libCheckAttempts < MAX_LIB_CHECK_ATTEMPTS) {
+            libCheckAttempts++;
+            console.log(
+              "LibraryScriptLoader: libAccts not populated yet, retry",
+              libCheckAttempts,
+              "..."
+            );
+            setTimeout(() => loadLibraryScriptForUser(user), 100);
+            return;
+          }
+      
+          // If we *still* have no libAccts after many attempts, bail out
+          if (!libAccts.length && !testerLibAcct.length) {
+            console.warn(
+              "LibraryScriptLoader: libAccts still empty after retries; not loading script."
+            );
+            return;
+          }
+      
+          // Normalize everything to strings for safe comparison
+          const corpIdStr       = String(user.corp_id);
+          const libAcctStrs     = libAccts.map(id => String(id));
+          const testerAcctStrs  = testerLibAcct.map(id => String(id));
+      
+          const isLibAcct  = libAcctStrs.includes(corpIdStr);
+          const isTestAcct = testerAcctStrs.includes(corpIdStr);
+      
+          const shouldLoad = isTestAcct || isLibAcct;
+          if (!shouldLoad) {
+            console.log(
+              "LibraryScriptLoader: Non-library account, not loading script.",
+              user.corp_id
+            );
+            return;
+          }
+      
+          const chosenUrl = isTestAcct ? testLocation : prodLocation;
+      
+          console.log(
+            "LibraryScriptLoader: Loading",
+            isTestAcct ? "TEST" : "PROD",
+            "script for corp_id",
+            user.corp_id,
+            "=>",
+            chosenUrl
+          );
+      
+          scriptLoaded = true;
+      
+          const s = document.createElement("script");
+          s.src = chosenUrl + "?v=" + Date.now(); // cache-buster while iterating
+          s.async = true;
+          document.head.appendChild(s);
     }
   
     // ----- Patch fetch to detect /customer/session/get -----

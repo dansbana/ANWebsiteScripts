@@ -1,9 +1,8 @@
 (function () {
     
-    window.version = 'V1.0.7';
+    window.version = 'V1.0.8';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
-    let isLibraryAccount = false;
     // Track our temporary re-apply interval for library tweaks
     let libraryTweaksIntervalId = null;
 
@@ -269,7 +268,6 @@
         const origReplaceState = history.replaceState;
 
         function onLocationChange() {
-            if (!isLibraryAccount) return;
             runLibTweaksForCurrentPage();
         }
 

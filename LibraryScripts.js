@@ -3,7 +3,6 @@
     window.version = 'dev';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
-    let isLibraryAccount = false;
     // Track our temporary re-apply interval for library tweaks
     let libraryTweaksIntervalId = null;
 
@@ -269,7 +268,6 @@
         const origReplaceState = history.replaceState;
 
         function onLocationChange() {
-            if (!isLibraryAccount) return;
             runLibTweaksForCurrentPage();
         }
 
