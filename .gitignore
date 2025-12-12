@@ -39,3 +39,6 @@ logs/
 *.temp
 .cache/
 
+# Watcher tracking
+.watcher/
+

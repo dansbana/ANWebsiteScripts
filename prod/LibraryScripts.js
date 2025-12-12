@@ -263,9 +263,8 @@
             try {
             const clone = response.clone();
             clone.json().then(function (data) {
-                const user = data && data.user;
+                const user = data && data.user; 
                 if (!user) return;
-// NEW: Always run this
                 showAccountIdWhenRequested(user);
                 const isLibraryTestAccount = libAccts.includes(user.corp_id);
 

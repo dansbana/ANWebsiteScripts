@@ -1,6 +1,6 @@
 (function () {
     
-    window.version = 'dev';
+    window.version = 'V1.0.7';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     let isLibraryAccount = false;
@@ -234,7 +234,6 @@
         }, intervalMs);
     }
 
-
     /**
      * Run the appropriate tweaks for the *current* page.
      * Safe to call multiple times – selectors just won't match on irrelevant pages.
@@ -250,7 +249,7 @@
     
         // For Firefox / React re-renders: keep re-applying cart/modal tweaks
         // for a short period so late renders don't bring old buttons back.
-        startLibraryTweaksForABit();
+        //startLibraryTweaksForABit();
     
         // Orders list / order detail pages – summary tweaks (WP4-like)
         if (location.pathname.startsWith("/account/order")) {
