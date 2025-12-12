@@ -12,9 +12,9 @@
     const ShowAcctIds    = getArray("ShowAcctIds");
   
     const prodLocation = window.prodLocation ||
-      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts.js";
+      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.7.js";
     const testLocation = window.testLocation ||
-      "https://dansbana.github.io/ANWebsiteScripts/test/LibraryScripts.js";
+      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.7.js";
     
     function showAccountIdWhenRequested(user) {
       if (!ShowAcctIds.length || !user) return;
