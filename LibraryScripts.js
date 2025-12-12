@@ -318,5 +318,40 @@
     if (typeof runLibTweaksForCurrentPage === "function") {
         runLibTweaksForCurrentPage();
     }
+
+    (function patchFetch() {
+        console.log("LibraryScript: Patching fetch");
+        if (!window.fetch) return;
+    
+        const originalFetch = window.fetch;
+    
+        window.fetch = function patchedFetch(input, init) {
+          const url = typeof input === "string" ? input : input && input.url;
+          console.log("LibraryScript: Fetching URL", url);
+          const result = originalFetch.apply(this, arguments);
+    
+          if (url && url.indexOf("/customer/session/get") !== -1) {
+            console.log("LibraryScript: Fetching session get");
+            result
+              .then(function (response) {
+                try {
+                  const clone = response.clone();
+                  clone
+                    .json()
+                    .then(function (data) {
+                      const user = data && data.user;
+                      if (!user) return;    
+                      console.log("LibraryScript: fetch causing tweaks to run");
+                      runLibTweaksForCurrentPage(user);
+                    })
+                    .catch(function () {});
+                } catch (e) {}
+              })
+              .catch(function () {});
+          }
+    
+          return result;
+        };
+      })();
     
 })();
