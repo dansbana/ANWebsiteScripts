@@ -1,6 +1,6 @@
 (function () {
     
-    window.version = 'dev';
+    window.version = 'V1.0.12';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks

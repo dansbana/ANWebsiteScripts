@@ -60,11 +60,12 @@ function getVersionInfo() {
 
 // Helper function to check if a file should be kept based on its version
 function shouldKeepFile(fileName, keepVersions) {
-    // Extract version from filename like "LibraryScripts-V1.0.7.1.js" or "LibraryScripts-V1.0.7.1.min.js"
-    // Pattern: LibraryScripts-V{version}.{increment}.js or LibraryScripts-V{version}.{increment}.min.js
-    const match = fileName.match(/^LibraryScripts-?V([\d.]+)\.\d+(?:\.min)?\.js$/);
+    // Extract the full version string (everything after V and before .js or .min.js)
+    // For example: "LibraryScripts-V1.0.10.js" -> "1.0.10"
+    //             "LibraryScripts-V2.1.6.min.js" -> "2.1.6"
+    const match = fileName.match(/^LibraryScripts-?V([\d.]+)(?:\.min)?\.js$/);
     if (match) {
-        const fileVersion = match[1];
+        const fileVersion = match[1]; // Everything after V, e.g. "1.0.10" or "2.1.6"
         return keepVersions.includes(fileVersion);
     }
     return false;
@@ -84,12 +85,20 @@ function copyToProdWithVersioning(versionInfo) {
         
         // Find all existing versioned files in prod directory
         const files = fs.readdirSync(prodDir);
-        const versionPattern = new RegExp(`^LibraryScripts-V${version.replace(/\./g, '\\.')}\\.(\\d+)\\.js$`);
+        const currentVersionPattern = new RegExp(`^LibraryScripts-V${version.replace(/\./g, '\\.')}\\.(\\d+)\\.js$`);
+        const allVersionedPattern = /^LibraryScripts-?V[\d.]+\.\d+\.js$/;
         
-        const versionedFiles = [];
+        // Find files matching current version (for deletion)
+        const currentVersionFiles = [];
+        // Find all other versioned files (to check against keepVersions)
+        const allVersionedFiles = [];
+        
         files.forEach(file => {
-            if (file.match(versionPattern)) {
-                versionedFiles.push(file);
+            if (file.match(allVersionedPattern)) {
+                allVersionedFiles.push(file);
+                if (file.match(currentVersionPattern)) {
+                    currentVersionFiles.push(file);
+                }
             }
         });
         
@@ -99,8 +108,10 @@ function copyToProdWithVersioning(versionInfo) {
         fs.writeFileSync(newFilePath, code, 'utf8');
         console.log(`[${new Date().toLocaleTimeString()}] ✓ Copied to prod: ${newFileName}`);
         
-        // Delete old versioned files (but keep unversioned ones and versions in keepVersions list)
-        versionedFiles.forEach(file => {
+        // Delete old versioned files
+        // For current version files: delete unless in keepVersions
+        // For other version files: delete unless in keepVersions
+        allVersionedFiles.forEach(file => {
             if (shouldKeepFile(file, versionInfo.keepVersions)) {
                 console.log(`[${new Date().toLocaleTimeString()}] ⊘ Kept prod version (in keepVersions): ${file}`);
                 return;
@@ -128,12 +139,15 @@ function createMinifiedVersionedFile(minifiedCode, versionInfo) {
         
         // Find all existing versioned minified files in dist directory
         const files = fs.readdirSync(distDir);
-        const versionPattern = new RegExp(`^LibraryScripts-V${version.replace(/\./g, '\\.')}\\.(\\d+)\\.min\\.js$`);
+        const currentVersionPattern = new RegExp(`^LibraryScripts-V${version.replace(/\./g, '\\.')}\\.(\\d+)\\.min\\.js$`);
+        const allVersionedPattern = /^LibraryScripts-?V[\d.]+\.\d+\.min\.js$/;
         
-        const versionedFiles = [];
+        // Find all versioned minified files (to check against keepVersions)
+        const allVersionedFiles = [];
+        
         files.forEach(file => {
-            if (file.match(versionPattern)) {
-                versionedFiles.push(file);
+            if (file.match(allVersionedPattern)) {
+                allVersionedFiles.push(file);
             }
         });
         
@@ -144,7 +158,7 @@ function createMinifiedVersionedFile(minifiedCode, versionInfo) {
         console.log(`[${new Date().toLocaleTimeString()}] ✓ Created minified version: ${newFileName}`);
         
         // Delete old versioned minified files (but keep unversioned ones and versions in keepVersions list)
-        versionedFiles.forEach(file => {
+        allVersionedFiles.forEach(file => {
             if (shouldKeepFile(file, versionInfo.keepVersions)) {
                 console.log(`[${new Date().toLocaleTimeString()}] ⊘ Kept dist version (in keepVersions): ${file}`);
                 return;
