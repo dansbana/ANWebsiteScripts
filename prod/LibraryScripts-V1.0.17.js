@@ -1,6 +1,6 @@
 (function () {
     
-    window.version = 'V1.0.16';
+    window.version = 'V1.0.17';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -270,8 +270,8 @@
     
         // Cart / modal / order confirmation tweaks (WP2 / WP3 etc)
         libraryTweak();
-        //observeCheckoutButtons();
-        observeModal();
+        observeCheckoutButtons();
+        //observeModal();
     
         // For Firefox / React re-renders: keep re-applying cart/modal tweaks
         // for a short period so late renders don't bring old buttons back.
@@ -353,5 +353,6 @@
           return result;
         };
       })();
+
     
 })();
