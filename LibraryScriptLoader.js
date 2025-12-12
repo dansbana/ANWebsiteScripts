@@ -113,9 +113,6 @@
                     // Make user globally available if scripts want it
                     window.libUser = user;
   
-                    // Always show IDs for the configured accounts
-                    showAccountIdWhenRequested(user);
-  
                     // Load PROD or TEST
                     loadLibraryScriptForUser(user);
                   })
