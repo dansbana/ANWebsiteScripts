@@ -86,16 +86,18 @@
   
     // ----- Patch fetch to detect /customer/session/get -----
     (function patchFetch() {
+      console.log("LibraryScriptLoader: Patching fetch");
       if (!window.fetch) return;
   
       const originalFetch = window.fetch;
   
       window.fetch = function patchedFetch(input, init) {
         const url = typeof input === "string" ? input : input && input.url;
-  
+        console.log("LibraryScriptLoader: Fetching URL", url);
         const result = originalFetch.apply(this, arguments);
   
         if (url && url.indexOf("/customer/session/get") !== -1) {
+          console.log("LibraryScriptLoader: Fetching session get");
           result
             .then(function (response) {
               try {
