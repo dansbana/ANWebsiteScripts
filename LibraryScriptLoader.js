@@ -12,9 +12,9 @@
     const ShowAcctIds    = getArray("ShowAcctIds");
   
     const prodLocation = window.prodLocation ||
-      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.7.js";
+      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.8.js";
     const testLocation = window.testLocation ||
-      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.7.js";
+      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.8.js";
     
     function showAccountIdWhenRequested(user) {
       if (!ShowAcctIds.length || !user) return;
@@ -52,6 +52,7 @@
           // IMPORTANT: read globals *now*, not at startup
           const libAccts      = getArray("libAccts");
           const testerLibAcct = getArray("testerLibAcct");
+          const ShowAcctIds    = getArray("ShowAcctIds");
       
           // --- NEW: wait until libAccts is actually populated ---
           if (!libAccts.length && libCheckAttempts < MAX_LIB_CHECK_ATTEMPTS) {
