@@ -102,6 +102,31 @@
     setTAValue('My order is good to go.');
     }
 
+    function showAccountIdWhenRequested(user) {
+        if (!ShowAcctIds.length || !user) return;
+    
+        const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
+    
+        const selectors = [
+          "button.ant-btn-primary.styled_btn span", // desktop account button
+          ".ant-avatar-string div",                // avatar initials element
+          ".ant-drawer-title",                     // mobile drawer title
+        ];
+    
+        const els = document.querySelectorAll(selectors.join(","));
+        if (!els.length) return;
+    
+        els.forEach(el => {
+          const text = el.textContent.trim().toLowerCase();
+          const matches = namesToShow.some(name => text.includes(name));
+          if (!matches) return;
+    
+          if (el.textContent.includes("ID:")) return; // avoid double-label
+    
+          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id})`;
+        });
+      }
+
     function libraryTweak() {
         // WP2 – modal entry point
         repElContent(
@@ -126,6 +151,7 @@
             'we will review your quote and comments',
             '<b>IMPORTANT NOTE: Your email confirmation will label this order a &quot;Quote Request,&quot; but we will process it as an order from your library.</b>'
         );
+        showAccountIdWhenRequested(libUser);
     }
 
     // WP4 – orders list summary text
