@@ -13,6 +13,7 @@
     const MAX_LIB_CHECK_ATTEMPTS = 40; // e.g. 40 × 100ms = 4s max
     
     function loadLibraryScriptForUser(user) {
+          console.log("LibraryScriptLoader: Loading library script for user", user);
           if (scriptLoaded || !user) return;
       
           // IMPORTANT: read globals *now*, not at startup
