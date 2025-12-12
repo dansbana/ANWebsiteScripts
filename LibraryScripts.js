@@ -124,7 +124,7 @@
     
           if (el.textContent.includes("ID:")) return; // avoid double-label
     
-          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id})`;
+          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${window.version})`;
         });
       } 
 

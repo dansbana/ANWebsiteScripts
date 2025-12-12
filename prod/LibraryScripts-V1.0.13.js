@@ -1,6 +1,6 @@
 (function () {
     
-    window.version = 'V1.0.12';
+    window.version = 'V1.0.13';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -124,7 +124,7 @@
     
           if (el.textContent.includes("ID:")) return; // avoid double-label
     
-          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id})`;
+          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${window.version})`;
         });
       } 
 
