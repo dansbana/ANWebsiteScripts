@@ -15,9 +15,7 @@
       "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts.js";
     const testLocation = window.testLocation ||
       "https://dansbana.github.io/ANWebsiteScripts/test/LibraryScripts.js";
-  
-    let scriptLoaded = false;
-  
+    
     function showAccountIdWhenRequested(user) {
       if (!ShowAcctIds.length || !user) return;
   
@@ -43,12 +41,12 @@
       });
     }
   
+
+    let scriptLoaded = false;
+    let libCheckAttempts = 0;
+    const MAX_LIB_CHECK_ATTEMPTS = 40; // e.g. 40 × 100ms = 4s max
+    
     function loadLibraryScriptForUser(user) {
-        let scriptLoaded = false;
-        let libCheckAttempts = 0;
-        const MAX_LIB_CHECK_ATTEMPTS = 40; // e.g. 40 × 100ms = 4s max
-      
-        function loadLibraryScriptForUser(user) {
           if (scriptLoaded || !user) return;
       
           // IMPORTANT: read globals *now*, not at startup

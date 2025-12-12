@@ -33,6 +33,7 @@ function getVersionInfo() {
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     const version = packageJson.version;
+    const keepVersions = packageJson.keepVersions || [];
     
     // Check both dist and prod directories to find the highest increment
     const distFiles = fs.existsSync(distDir) ? fs.readdirSync(distDir) : [];
@@ -54,7 +55,19 @@ function getVersionInfo() {
         }
     });
     
-    return { version, nextIncrement: maxIncrement + 1 };
+    return { version, nextIncrement: maxIncrement + 1, keepVersions };
+}
+
+// Helper function to check if a file should be kept based on its version
+function shouldKeepFile(fileName, keepVersions) {
+    // Extract version from filename like "LibraryScripts-V1.0.7.1.js" or "LibraryScripts-V1.0.7.1.min.js"
+    // Pattern: LibraryScripts-V{version}.{increment}.js or LibraryScripts-V{version}.{increment}.min.js
+    const match = fileName.match(/^LibraryScripts-?V([\d.]+)\.\d+(?:\.min)?\.js$/);
+    if (match) {
+        const fileVersion = match[1];
+        return keepVersions.includes(fileVersion);
+    }
+    return false;
 }
 
 // Function to copy unminified file to prod with versioning
@@ -86,8 +99,12 @@ function copyToProdWithVersioning(versionInfo) {
         fs.writeFileSync(newFilePath, code, 'utf8');
         console.log(`[${new Date().toLocaleTimeString()}] ✓ Copied to prod: ${newFileName}`);
         
-        // Delete old versioned files (but keep unversioned ones)
+        // Delete old versioned files (but keep unversioned ones and versions in keepVersions list)
         versionedFiles.forEach(file => {
+            if (shouldKeepFile(file, versionInfo.keepVersions)) {
+                console.log(`[${new Date().toLocaleTimeString()}] ⊘ Kept prod version (in keepVersions): ${file}`);
+                return;
+            }
             const oldFilePath = path.join(prodDir, file);
             fs.unlinkSync(oldFilePath);
             console.log(`[${new Date().toLocaleTimeString()}] ✓ Deleted old prod version: ${file}`);
@@ -126,8 +143,12 @@ function createMinifiedVersionedFile(minifiedCode, versionInfo) {
         fs.writeFileSync(newFilePath, minifiedCode, 'utf8');
         console.log(`[${new Date().toLocaleTimeString()}] ✓ Created minified version: ${newFileName}`);
         
-        // Delete old versioned minified files (but keep unversioned ones like LibraryScripts.min.js)
+        // Delete old versioned minified files (but keep unversioned ones and versions in keepVersions list)
         versionedFiles.forEach(file => {
+            if (shouldKeepFile(file, versionInfo.keepVersions)) {
+                console.log(`[${new Date().toLocaleTimeString()}] ⊘ Kept dist version (in keepVersions): ${file}`);
+                return;
+            }
             const oldFilePath = path.join(distDir, file);
             fs.unlinkSync(oldFilePath);
             console.log(`[${new Date().toLocaleTimeString()}] ✓ Deleted old dist version: ${file}`);
