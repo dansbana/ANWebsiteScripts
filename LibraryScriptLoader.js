@@ -6,41 +6,7 @@
       const v = window[name];
       return Array.isArray(v) ? v : [];
     }
-  
-    const libAccts       = getArray("libAccts");
-    const testerLibAcct  = getArray("testerLibAcct");
-    const ShowAcctIds    = getArray("ShowAcctIds");
-  
-    const prodLocation = window.prodLocation ||
-      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.8.js";
-    const testLocation = window.testLocation ||
-      "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.8.js";
-    
-    function showAccountIdWhenRequested(user) {
-      if (!ShowAcctIds.length || !user) return;
-  
-      const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
-  
-      const selectors = [
-        "button.ant-btn-primary.styled_btn span", // desktop account button
-        ".ant-avatar-string div",                // avatar initials element
-        ".ant-drawer-title",                     // mobile drawer title
-      ];
-  
-      const els = document.querySelectorAll(selectors.join(","));
-      if (!els.length) return;
-  
-      els.forEach(el => {
-        const text = el.textContent.trim().toLowerCase();
-        const matches = namesToShow.some(name => text.includes(name));
-        if (!matches) return;
-  
-        if (el.textContent.includes("ID:")) return; // avoid double-label
-  
-        el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id})`;
-      });
-    }
-  
+      
 
     let scriptLoaded = false;
     let libCheckAttempts = 0;
@@ -53,6 +19,13 @@
           const libAccts      = getArray("libAccts");
           const testerLibAcct = getArray("testerLibAcct");
           const ShowAcctIds    = getArray("ShowAcctIds");
+          const prodLocation = window.prodLocation ||
+          "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.10.js";
+          const testLocation = window.testLocation ||
+          "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.10.js";
+
+          window.showAccountId = ShowAcctIds.length && !user && ShowAcctIds.map(n => n.toLowerCase());
+    
       
           // --- NEW: wait until libAccts is actually populated ---
           if (!libAccts.length && libCheckAttempts < MAX_LIB_CHECK_ATTEMPTS) {
