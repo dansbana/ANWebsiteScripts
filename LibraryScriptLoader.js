@@ -1,8 +1,6 @@
 (function () {
     console.log("LibraryScriptLoader booted on", location.pathname);
-    
-    console.log("LibraryScriptsLoader: Booted" + window.libAccts);
-  
+      
     // ----- Helpers to read globals safely -----
     function getArray(name) {
       const v = window[name];
@@ -11,21 +9,41 @@
       
 
     let scriptLoaded = false;
+    let lastLoadedCorpId = null;
+    let lastLoadedScriptElement = null;
     let libCheckAttempts = 0;
     const MAX_LIB_CHECK_ATTEMPTS = 40; // e.g. 40 × 100ms = 4s max
     
     function loadLibraryScriptForUser(user) {
-          console.log("LibraryScriptLoader: Loading library script for user", user);
-          if (scriptLoaded || !user) return;
+          // Check if user changed
+          const currentCorpId = String(user.corp_id);
+          const userChanged = lastLoadedCorpId !== null && lastLoadedCorpId !== currentCorpId;
+          if (!user) return;
+          
+          
+          if (userChanged) {
+              console.log("LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId, "- removing old script");
+              // Remove the old script element
+              if (lastLoadedScriptElement && lastLoadedScriptElement.parentNode) {
+                  lastLoadedScriptElement.parentNode.removeChild(lastLoadedScriptElement);
+              }
+              // Reset flags to allow reloading
+              scriptLoaded = false;
+              lastLoadedCorpId = null;
+              lastLoadedScriptElement = null;
+          }
+          
+          if (scriptLoaded && !userChanged) {
+            console.log("LibraryScriptLoader: Script already loaded for user:", user.corp_id, " company: ", user.company);
+            return;
+          }
       
           // IMPORTANT: read globals *now*, not at startup
           const libAccts      = getArray("libAccts");
           const testerLibAcct = getArray("testerLibAcct");
           const ShowAcctIds    = getArray("ShowAcctIds");
-          const prodLocation = window.prodLocation ||
-          "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.18.js";
-          const testLocation = window.testLocation ||
-          "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.18.js";
+          const prodLocation = window.prodLocation;
+          const testLocation = window.testLocation;
 
           window.showAccountId = ShowAcctIds.length && !user && ShowAcctIds.map(n => n.toLowerCase());
     
@@ -68,7 +86,7 @@
           }
       
           const chosenUrl = isTestAcct ? testLocation : prodLocation;
-      
+          
           console.log(
             "LibraryScriptLoader: Loading",
             isTestAcct ? "TEST" : "PROD",
@@ -77,13 +95,15 @@
             "=>",
             chosenUrl
           );
-      
+          
           scriptLoaded = true;
-      
+          lastLoadedCorpId = currentCorpId;
+          
           const s = document.createElement("script");
           s.src = chosenUrl + "?v=" + Date.now(); // cache-buster while iterating
           s.async = true;
           document.head.appendChild(s);
+          lastLoadedScriptElement = s;
     }
   
     // ----- Patch fetch to detect /customer/session/get -----
@@ -95,7 +115,6 @@
   
       window.fetch = function patchedFetch(input, init) {
         const url = typeof input === "string" ? input : input && input.url;
-        console.log("LibraryScriptLoader: Fetching URL", url);
         const result = originalFetch.apply(this, arguments);
   
         if (url && url.indexOf("/customer/session/get") !== -1) {
@@ -107,9 +126,8 @@
                 clone
                   .json()
                   .then(function (data) {
-                    console.log("LibraryScriptLoader: Fetching session get data", data);
                     const user = data && data.user;
-                    console.log("LibraryScriptLoader: Fetching session get user", user);
+                    console.log("LibraryScriptLoader: Fetching session get user: ", user.corp_id, " company: ", user.company);
                     if (!user) return;
   
                     // Make user globally available if scripts want it
@@ -122,6 +140,9 @@
               } catch (e) {}
             })
             .catch(function () {});
+        }
+        else {
+          console.log("LibraryScriptLoader: Ignoring Fetch for URL", url);
         }
   
         return result;

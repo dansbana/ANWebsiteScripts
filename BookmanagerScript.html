@@ -6,3 +6,78 @@
       d.head.appendChild(js);
     })(document, 'script', 'https://www.authorsnote.com/js/library-tweaks.js');
 </script>
+
+<script>
+  window.libAccts = [1627756, 1620606, 1640666, 1664213];
+  window.ShowAcctIds= ["Librardy Services Test Account"];
+  </script>
+  <script src="https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts.js"></script>
+  <script>
+  (function(w, d, t, h, s, n) {
+      w.FlodeskObject = n;
+      var fn = function() {
+        (w[n].q = w[n].q || []).push(arguments);
+      };
+      w[n] = w[n] || fn;
+      var f = d.getElementsByTagName(t)[0];
+      var v = '?v=' + Math.floor(new Date().getTime() / (120 * 1000)) * 60;
+      var sm = d.createElement(t);
+      sm.async = true;
+      sm.type = 'module';
+      sm.src = h + s + '.mjs' + v;
+      f.parentNode.insertBefore(sm, f);
+      var sn = d.createElement(t);
+      sn.async = true;
+      sn.noModule = true;
+      sn.src = h + s + '.js' + v;
+      f.parentNode.insertBefore(sn, f);
+    })(window, document, 'script', 'https://assets.flodesk.com', '/universal', 'fd');
+  </script>
+
+
+
+
+<script>
+  /* Library accounts that should receive the library tweaks */
+
+  window.libAccts = [1627756, 1620606, 1640666, 1664213];
+
+  /* Accounts for which you want the ID appended in the UI (for identification) */
+  window.ShowAcctIds = ["Library Services Test Account"];
+
+  /* Accounts that should receive the TEST version of the script instead of PROD */
+  window.testerLibAcct = [
+    1627756   // add more corp_id values here as needed
+  ];
+
+  /* URL for the PROD script */
+  window.prodLocation = "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.8.js";
+
+  /* URL for the TEST script */
+  window.testLocation = "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.8.js";
+</script>
+
+<!-- The Loader determines which version to load -->
+<script src="https://dansbana.github.io/ANWebsiteScripts/LibraryScriptLoader.js"></script>
+
+<script>
+  (function(w, d, t, h, s, n) {
+    w.FlodeskObject = n;
+    var fn = function() {
+      (w[n].q = w[n].q || []).push(arguments);
+    };
+    w[n] = w[n] || fn;
+    var f = d.getElementsByTagName(t)[0];
+    var v = '?v=' + Math.floor(new Date().getTime() / (120 * 1000)) * 60;
+    var sm = d.createElement(t);
+    sm.async = true;
+    sm.type = 'module';
+    sm.src = h + s + '.mjs' + v;
+    f.parentNode.insertBefore(sm, f);
+    var sn = d.createElement(t);
+    sn.async = true;
+    sn.noModule = true;
+    sn.src = h + s + '.js' + v;
+    f.parentNode.insertBefore(sn, f);
+  })(window, document, 'script', 'https://assets.flodesk.com', '/universal', 'fd');
+</script>
