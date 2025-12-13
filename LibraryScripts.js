@@ -22,6 +22,34 @@
     // Observer state objects (passed by reference)
     const checkoutButtonsObserverState = { observer: null, container: null };
     const orderSummaryObserverState = { observer: null, container: null };
+    
+    // Cleanup function to stop all watchers and observers
+    function cleanupLibraryScript() {
+        logger(LOG_LEVEL.TRACE, 'LibraryScripts: Cleaning up watchers and observers');
+        
+        // Clear interval if running
+        if (libraryTweaksIntervalId) {
+            clearInterval(libraryTweaksIntervalId);
+            libraryTweaksIntervalId = null;
+            currentWatcherPageType = null;
+        }
+        
+        // Disconnect observers
+        if (checkoutButtonsObserverState.observer) {
+            checkoutButtonsObserverState.observer.disconnect();
+            checkoutButtonsObserverState.observer = null;
+            checkoutButtonsObserverState.container = null;
+        }
+        
+        if (orderSummaryObserverState.observer) {
+            orderSummaryObserverState.observer.disconnect();
+            orderSummaryObserverState.observer = null;
+            orderSummaryObserverState.container = null;
+        }
+    }
+    
+    // Expose cleanup function on window so loader can call it
+    window.cleanupLibraryScript = cleanupLibraryScript;
 
     // Helper function to observe an element with idempotent behavior
     function observeElement(observerState, selector, callback) {
@@ -120,6 +148,7 @@
     }
 
     function changeSubmitQuoteModal() {
+        logger(LOG_LEVEL.VERBOSE, 'changeSubmitQuoteModal: Changing submit quote modal');
         repElContent(
             'h3',
             'Request',
@@ -176,6 +205,7 @@
       } 
 
     function changeCartPageFunctionality() {
+        logger(LOG_LEVEL.VERBOSE, 'changeCartPageFunctionality: Changing cart page functionality');
         // WP2 – modal entry point
         repElContent(
             SQTE_BTN_SEL,
@@ -190,6 +220,7 @@
     }
 
     function changeOrderConfirmationFunctionality() {
+        logger(LOG_LEVEL.VERBOSE, 'changeOrderConfirmationFunctionality: Changing order confirmation functionality');
         // WP3 – order confirmation
         repElContent(
             '.ant-result-title span',
@@ -205,6 +236,7 @@
 
     // WP4 – orders list summary text
     function changeOrderPage() {
+        logger(LOG_LEVEL.VERBOSE, 'changeOrderPage: Changing order page functionality');
         repElContent(
             'span',
             'requested a quote',

@@ -61,7 +61,18 @@
           
           
           if (userChanged) {
-              logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId, "- removing old script");
+              logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId, "- cleaning up and removing old script");
+              
+              // Call cleanup function from LibraryScripts.js if it exists
+              if (typeof window.cleanupLibraryScript === 'function') {
+                  try {
+                      logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: Calling cleanupLibraryScript");
+                      window.cleanupLibraryScript();
+                  } catch (e) {
+                      logger(LOG_LEVEL.WARN, "LibraryScriptLoader: Error during cleanup", e);
+                  }
+              }
+              
               // Remove the old script element safely
               if (lastLoadedScriptElement) {
                   try {
@@ -81,6 +92,7 @@
                       }
                   }
               }
+              
               // Reset flags to allow reloading
               scriptLoaded = false;
               lastLoadedCorpId = null;
