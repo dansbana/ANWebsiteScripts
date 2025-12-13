@@ -62,9 +62,24 @@
           
           if (userChanged) {
               logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId, "- removing old script");
-              // Remove the old script element
-              if (lastLoadedScriptElement && lastLoadedScriptElement.parentNode) {
-                  lastLoadedScriptElement.parentNode.removeChild(lastLoadedScriptElement);
+              // Remove the old script element safely
+              if (lastLoadedScriptElement) {
+                  try {
+                      // Check if element is still in the DOM before removing
+                      if (lastLoadedScriptElement.parentNode && 
+                          lastLoadedScriptElement.parentNode.contains(lastLoadedScriptElement)) {
+                          lastLoadedScriptElement.remove();
+                      }
+                  } catch (e) {
+                      // If removal fails, try alternative method
+                      try {
+                          if (lastLoadedScriptElement.parentNode) {
+                              lastLoadedScriptElement.parentNode.removeChild(lastLoadedScriptElement);
+                          }
+                      } catch (e2) {
+                          logger(LOG_LEVEL.WARN, "LibraryScriptLoader: Could not remove old script element", e2);
+                      }
+                  }
               }
               // Reset flags to allow reloading
               scriptLoaded = false;
