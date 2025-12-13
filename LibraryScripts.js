@@ -133,11 +133,11 @@
             'your cart will be',
             'Your cart will be cleared upon submitting your order.'
         );
-        setTAValue('My order is good to go.');
+        setTextAreaValue('My order is good to go.');
     }
 
     function showAccountIdWhenRequested(user) {
-        console.log("showAccountIdWhenRequested: Showing account ID for user:", user);
+        console.log("showAccountIdWhenRequested: Showing account ID for user:", user.corp_id);
         if (!ShowAcctIds.length || !user) return;
     
         const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
