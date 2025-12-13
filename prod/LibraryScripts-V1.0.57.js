@@ -1,5 +1,5 @@
 (function () {
-    window.version = 'V1.0.56';
+    window.version = 'V1.0.57';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -224,7 +224,7 @@
     function startWatchersAndObservers() {
         // Determine page type
         const isCartPage = location.pathname.startsWith("/checkout/cart");
-        const isOrderPage = location.pathname.startsWith("/account/orders");
+        const isOrderPage = location.pathname.startsWith("/account/order");
         
         if (!isCartPage && !isOrderPage) {
             // Not a page we handle - stop any existing watcher
