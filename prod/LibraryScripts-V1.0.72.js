@@ -1,6 +1,17 @@
 (function () {
-    window.version = 'V1.0.57';
-    console.log('Loading Custom Library Functionaltiy', location.pathname);
+    // Use logger from LibraryScriptLoader if available, otherwise simple fallback
+    const logger = window.logger || function(level, ...args) {
+        console.log(level + ':', ...args);
+    };
+    const LOG_LEVEL = window.LOG_LEVEL || Object.freeze({
+        ERROR: 'ERROR',
+        WARN: 'WARN',
+        TRACE: 'TRACE',
+        VERBOSE: 'VERBOSE'
+    });
+    
+    window.version = 'V1.0.72';
+    logger(LOG_LEVEL.TRACE, 'Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
     let libraryTweaksIntervalId = null;
@@ -137,7 +148,7 @@
     }
 
     function showAccountIdWhenRequested(user) {
-        console.log("showAccountIdWhenRequested: Showing account ID for user:", user.corp_id);
+        logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user:", user.corp_id);
         if (!ShowAcctIds.length || !user) return;
     
         const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
@@ -273,9 +284,11 @@
                 showAccountIdWhenRequested(libUser);
                 if (isCartPage) {
                     // Cart page: call changeCartPageFunctionality
+                    logger(LOG_LEVEL.VERBOSE, 'Watcher calling changeCartPageFunctionality');
                     changeCartPageFunctionality();
                 } else if (isOrderPage) {
                     // Order page: call changeOrderPage
+                    logger(LOG_LEVEL.VERBOSE, 'Watcher calling changeOrderPage');
                     changeOrderPage();
                     
                     // Check if replacement was successful (order page specific)
@@ -290,7 +303,7 @@
                     }
                 }
             } catch (e) {
-                console.error('CustLibFunc: watcher error in interval', e);
+                logger(LOG_LEVEL.ERROR, 'CustLibFunc: watcher error in interval', e);
             }
             
             if (shouldStop || runs >= maxRuns) {
@@ -307,7 +320,7 @@
      */
 
     function runLibTweaksForCurrentPage() {
-        console.log('CustLibFunc: runLibTweaksForCurrentPage on', location.pathname);
+        logger(LOG_LEVEL.TRACE, 'CustLibFunc: runLibTweaksForCurrentPage on', location.pathname);
     
         // Cart / modal / order confirmation tweaks (WP2 / WP3 etc)
         if (location.pathname.startsWith("/checkout/cart")) {
@@ -316,7 +329,7 @@
     
         // Orders list / order detail pages – summary tweaks (WP4-like)
         if (location.pathname.startsWith("/account/orders")) {
-            console.log('CustLibFunc: Order Summary Watcher Running');
+            logger(LOG_LEVEL.TRACE, 'CustLibFunc: Order Summary Watcher Running');
             changeOrderConfirmationFunctionality();
         }
     }
@@ -357,7 +370,7 @@
     }
 
     (function patchFetch() {
-        console.log("LibraryScript: Patching fetch");
+        logger(LOG_LEVEL.TRACE, "LibraryScript: Patching fetch");
         if (!window.fetch) return;
     
         const originalFetch = window.fetch;
@@ -367,7 +380,7 @@
           const result = originalFetch.apply(this, arguments);
     
           if (url && url.indexOf("/customer/session/get") !== -1) {
-            console.log("LibraryScript: Fetching session get for URL:", url);
+            logger(LOG_LEVEL.VERBOSE, "LibraryScript: Fetching session get for URL:", url);
             result
               .then(function (response) {
                 try {
@@ -377,7 +390,7 @@
                     .then(function (data) {
                       const user = data && data.user;
                       if (!user) return;    
-                      console.log("LibraryScript: fetch causing tweaks to run");
+                      logger(LOG_LEVEL.TRACE, "LibraryScript: fetch causing tweaks to run");
                       runLibTweaksForCurrentPage(user);
                       startWatchersAndObservers();
                     })
@@ -387,7 +400,7 @@
               .catch(function () {});
           }
           else {
-            console.log("LibraryScript: Ignoring Fetch for URL:", url);
+            logger(LOG_LEVEL.VERBOSE, "LibraryScript: Ignoring Fetch for URL:", url);
           }
     
           return result;

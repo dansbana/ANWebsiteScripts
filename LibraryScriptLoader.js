@@ -1,5 +1,44 @@
 (function () {
-    console.log("LibraryScriptLoader booted on", location.pathname);
+    // ----- Logger Setup -----
+    const LOG_LEVEL = Object.freeze({
+        ERROR: 'ERROR',
+        WARN: 'WARN',
+        TRACE: 'TRACE',
+        VERBOSE: 'VERBOSE'
+    });
+    
+    // Default log level if not set
+    const defaultLogLevel = LOG_LEVEL.WARN;
+    
+    // Log level hierarchy - each level includes all levels above it
+    const logLevelHierarchy = {
+        [LOG_LEVEL.ERROR]: [LOG_LEVEL.ERROR],
+        [LOG_LEVEL.WARN]: [LOG_LEVEL.ERROR, LOG_LEVEL.WARN],
+        [LOG_LEVEL.TRACE]: [LOG_LEVEL.ERROR, LOG_LEVEL.WARN, LOG_LEVEL.TRACE],
+        [LOG_LEVEL.VERBOSE]: [LOG_LEVEL.ERROR, LOG_LEVEL.WARN, LOG_LEVEL.TRACE, LOG_LEVEL.VERBOSE]
+    };
+    
+    function logger(level, ...args) {
+        const currentLevel = window.LogLevel || defaultLogLevel;
+        const allowedLevels = logLevelHierarchy[currentLevel] || logLevelHierarchy[LOG_LEVEL.TRACE];
+        
+        if (!allowedLevels.includes(level)) {
+            return; // Don't log if level is not allowed
+        }
+        
+        // Map log levels to console methods
+        const consoleMethod = level === LOG_LEVEL.ERROR ? console.error :
+                             level === LOG_LEVEL.WARN ? console.warn :
+                             console.log;
+        
+        consoleMethod(...args);
+    }
+    
+    // Expose logger on window so LibraryScripts.js can use it
+    window.logger = logger;
+    window.LOG_LEVEL = LOG_LEVEL;
+    
+    logger(LOG_LEVEL.TRACE, "LibraryScriptLoader booted on", location.pathname);
       
     // ----- Helpers to read globals safely -----
     function getArray(name) {
@@ -22,7 +61,7 @@
           
           
           if (userChanged) {
-              console.log("LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId, "- removing old script");
+              logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId, "- removing old script");
               // Remove the old script element
               if (lastLoadedScriptElement && lastLoadedScriptElement.parentNode) {
                   lastLoadedScriptElement.parentNode.removeChild(lastLoadedScriptElement);
@@ -34,7 +73,7 @@
           }
           
           if (scriptLoaded && !userChanged) {
-            console.log("LibraryScriptLoader: Script already loaded for user:", user.corp_id, " company: ", user.company);
+            logger(LOG_LEVEL.VERBOSE, "LibraryScriptLoader: Script already loaded for user:", user.corp_id, " company: ", user.company);
             return;
           }
       
@@ -51,7 +90,8 @@
           // --- NEW: wait until libAccts is actually populated ---
           if (!libAccts.length && libCheckAttempts < MAX_LIB_CHECK_ATTEMPTS) {
             libCheckAttempts++;
-            console.log(
+            logger(
+              LOG_LEVEL.VERBOSE,
               "LibraryScriptLoader: libAccts not populated yet, retry",
               libCheckAttempts,
               "..."
@@ -62,7 +102,8 @@
       
           // If we *still* have no libAccts after many attempts, bail out
           if (!libAccts.length && !testerLibAcct.length) {
-            console.warn(
+            logger(
+              LOG_LEVEL.WARN,
               "LibraryScriptLoader: libAccts still empty after retries; not loading script."
             );
             return;
@@ -78,7 +119,8 @@
       
           const shouldLoad = isTestAcct || isLibAcct;
           if (!shouldLoad) {
-            console.log(
+            logger(
+              LOG_LEVEL.TRACE,
               "LibraryScriptLoader: Non-library account, not loading script.",
               user.corp_id
             );
@@ -87,7 +129,8 @@
       
           const chosenUrl = isTestAcct ? testLocation : prodLocation;
           
-          console.log(
+          logger(
+            LOG_LEVEL.TRACE,
             "LibraryScriptLoader: Loading",
             isTestAcct ? "TEST" : "PROD",
             "script for corp_id",
@@ -108,7 +151,7 @@
   
     // ----- Patch fetch to detect /customer/session/get -----
     (function patchFetch() {
-      console.log("LibraryScriptLoader: Patching fetch");
+      logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: Patching fetch");
       if (!window.fetch) return;
   
       const originalFetch = window.fetch;
@@ -118,7 +161,7 @@
         const result = originalFetch.apply(this, arguments);
   
         if (url && url.indexOf("/customer/session/get") !== -1) {
-          console.log("LibraryScriptLoader: Fetching session get");
+          logger(LOG_LEVEL.VERBOSE, "LibraryScriptLoader: Fetching session get");
           result
             .then(function (response) {
               try {
@@ -127,7 +170,7 @@
                   .json()
                   .then(function (data) {
                     const user = data && data.user;
-                    console.log("LibraryScriptLoader: Fetching session get user: ", user.corp_id, " company: ", user.company);
+                    logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: Fetching session get user: ", user.corp_id, " company: ", user.company);
                     if (!user) return;
   
                     // Make user globally available if scripts want it
@@ -142,7 +185,7 @@
             .catch(function () {});
         }
         else {
-          console.log("LibraryScriptLoader: Ignoring Fetch for URL", url);
+          logger(LOG_LEVEL.VERBOSE, "LibraryScriptLoader: Ignoring Fetch for URL", url);
         }
   
         return result;
@@ -152,7 +195,7 @@
     // ----- Try to trigger the app to re-fetch session after patch -----
     (function pokeAppToRefetch() {
       function poke() {
-        console.log("LibraryScriptLoader: poking app to refetch session...");
+        logger(LOG_LEVEL.VERBOSE, "LibraryScriptLoader: poking app to refetch session...");
         try {
           window.dispatchEvent(new Event("focus"));
         } catch (e) {}
