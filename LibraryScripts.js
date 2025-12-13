@@ -244,7 +244,8 @@
         const isOrderPage = location.pathname.startsWith("/account/order");
         
         if (!isCartPage && !isOrderPage) {
-            // Not a page we handle - stop any existing watcher
+            // Not a page we handle - stop any existing watcher but still show the account ID
+            showAccountIdWhenRequested(libUser);
             if (libraryTweaksIntervalId) {
                 clearInterval(libraryTweaksIntervalId);
                 libraryTweaksIntervalId = null;
