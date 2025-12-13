@@ -209,7 +209,7 @@
     // WP4 – orders list summary text
     function changeOrderPage() {
         logger(LOG_LEVEL.VERBOSE, 'changeOrderPage: Changing order page functionality');
-        repElContent(
+        repElContent( 
             'span',
             'requested a quote',
             '<strong>Order Type</strong> Library'

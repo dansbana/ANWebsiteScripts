@@ -12,7 +12,7 @@
                           VERBOSE: 'VERBOSE'
                       });
     
-    window.version = 'V1.0.83';
+    window.version = 'V1.0.87';
     logger(LOG_LEVEL.TRACE, 'Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -22,34 +22,6 @@
     // Observer state objects (passed by reference)
     const checkoutButtonsObserverState = { observer: null, container: null };
     const orderSummaryObserverState = { observer: null, container: null };
-    
-    // Cleanup function to stop all watchers and observers
-    function cleanupLibraryScript() {
-        logger(LOG_LEVEL.TRACE, 'LibraryScripts: Cleaning up watchers and observers');
-        
-        // Clear interval if running
-        if (libraryTweaksIntervalId) {
-            clearInterval(libraryTweaksIntervalId);
-            libraryTweaksIntervalId = null;
-            currentWatcherPageType = null;
-        }
-        
-        // Disconnect observers
-        if (checkoutButtonsObserverState.observer) {
-            checkoutButtonsObserverState.observer.disconnect();
-            checkoutButtonsObserverState.observer = null;
-            checkoutButtonsObserverState.container = null;
-        }
-        
-        if (orderSummaryObserverState.observer) {
-            orderSummaryObserverState.observer.disconnect();
-            orderSummaryObserverState.observer = null;
-            orderSummaryObserverState.container = null;
-        }
-    }
-    
-    // Expose cleanup function on window so loader can call it
-    window.cleanupLibraryScript = cleanupLibraryScript;
 
     // Helper function to observe an element with idempotent behavior
     function observeElement(observerState, selector, callback) {
@@ -237,7 +209,7 @@
     // WP4 – orders list summary text
     function changeOrderPage() {
         logger(LOG_LEVEL.VERBOSE, 'changeOrderPage: Changing order page functionality');
-        repElContent(
+        repElContent( 
             'span',
             'requested a quote',
             '<strong>Order Type</strong> Library'
