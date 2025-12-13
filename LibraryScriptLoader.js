@@ -63,6 +63,9 @@
           if (userChanged) {
               logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId, "- cleaning up and removing old script");
               
+              // Check if we had a script loaded (meaning previous user was a library account)
+              const hadScriptLoaded = scriptLoaded;
+              
               // Call cleanup function from LibraryScripts.js if it exists
               if (typeof window.cleanupLibraryScript === 'function') {
                   try {
@@ -97,6 +100,12 @@
               scriptLoaded = false;
               lastLoadedCorpId = null;
               lastLoadedScriptElement = null;
+              
+              // If we had a script loaded and the new user might not be a library account,
+              // we need to check if we should reload the page to restore original DOM state
+              // We'll check this after determining if the new user is a library account
+              // Store this flag to check later
+              window._hadScriptBeforeUserChange = hadScriptLoaded;
           }
           
           if (scriptLoaded && !userChanged) {
@@ -151,8 +160,21 @@
               "LibraryScriptLoader: Non-library account, not loading script.",
               user.corp_id
             );
+            
+            // If we had a script loaded before and now we don't need one,
+            // reload the page to restore original DOM state
+            if (window._hadScriptBeforeUserChange) {
+                logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: Reloading page to restore original state after library account switch");
+                window._hadScriptBeforeUserChange = false;
+                window.location.reload();
+                return;
+            }
+            
             return;
           }
+          
+          // Clear the flag since we're loading a script for this user
+          window._hadScriptBeforeUserChange = false;
       
           const chosenUrl = isTestAcct ? testLocation : prodLocation;
           
