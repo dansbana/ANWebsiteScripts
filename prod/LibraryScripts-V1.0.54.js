@@ -1,5 +1,5 @@
 (function () {
-    window.version = 'V1.0.52';
+    window.version = 'V1.0.54';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -258,7 +258,7 @@
             observeOrderSummary();
         }
         
-        // Start the watcher loop
+        // Start the watcher loop 
         let runs = 0;
         let shouldStop = false;
         const maxRuns = isCartPage ? 20 : 40;  // Cart: 20 runs, Order: 40 runs
@@ -270,6 +270,7 @@
             runs++;
             
             try {
+                showAccountIdWhenRequested(libUser);
                 if (isCartPage) {
                     // Cart page: call changeCartPageFunctionality
                     changeCartPageFunctionality();
