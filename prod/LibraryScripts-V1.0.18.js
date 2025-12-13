@@ -1,6 +1,6 @@
 (function () {
-    
-    window.version = 'V1.0.17';
+    console.log("LibraryScripts: Booted" + window.libAccts);
+    window.version = 'V1.0.18';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks

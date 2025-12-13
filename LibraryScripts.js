@@ -1,5 +1,5 @@
 (function () {
-    
+    console.log("LibraryScripts: Booted" + window.libAccts);
     window.version = 'dev';
     console.log('Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account

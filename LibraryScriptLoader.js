@@ -1,5 +1,7 @@
 (function () {
     console.log("LibraryScriptLoader booted on", location.pathname);
+    
+    console.log("LibraryScriptsLoader: Booted" + window.libAccts);
   
     // ----- Helpers to read globals safely -----
     function getArray(name) {
@@ -21,9 +23,9 @@
           const testerLibAcct = getArray("testerLibAcct");
           const ShowAcctIds    = getArray("ShowAcctIds");
           const prodLocation = window.prodLocation ||
-          "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.17.js";
+          "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.18.js";
           const testLocation = window.testLocation ||
-          "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.17.js";
+          "https://dansbana.github.io/ANWebsiteScripts/prod/LibraryScripts-V1.0.18.js";
 
           window.showAccountId = ShowAcctIds.length && !user && ShowAcctIds.map(n => n.toLowerCase());
     
