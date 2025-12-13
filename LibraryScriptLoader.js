@@ -35,16 +35,8 @@
     }
     
     // Expose logger on window so LibraryScripts.js can use it
-    // Set it directly on window to ensure it's available globally
-    if (typeof window !== 'undefined') {
-        window.logger = logger;
-        window.LOG_LEVEL = LOG_LEVEL;
-        // Also set it on globalThis as a fallback
-        if (typeof globalThis !== 'undefined') {
-            globalThis.logger = logger;
-            globalThis.LOG_LEVEL = LOG_LEVEL;
-        }
-    }
+    window.logger = logger;
+    window.LOG_LEVEL = LOG_LEVEL;
     
     logger(LOG_LEVEL.TRACE, "LibraryScriptLoader booted on", location.pathname);
       

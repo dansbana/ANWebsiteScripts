@@ -1,13 +1,10 @@
 (function () {
     // Use logger from LibraryScriptLoader if available, otherwise simple fallback
-    // Check both window and globalThis to ensure we can access it
-    const logger = (typeof window !== 'undefined' && window.logger) || 
-                   (typeof globalThis !== 'undefined' && globalThis.logger) ||
+    const logger = (typeof window !== 'undefined' && window.logger) ||
                    function(level, ...args) {
                        console.log(level + ':', ...args);
                    };
     const LOG_LEVEL = (typeof window !== 'undefined' && window.LOG_LEVEL) ||
-                      (typeof globalThis !== 'undefined' && globalThis.LOG_LEVEL) ||
                       Object.freeze({
                           ERROR: 'ERROR',
                           WARN: 'WARN',
@@ -15,12 +12,7 @@
                           VERBOSE: 'VERBOSE'
                       });
     
-    // Debug: Check if logger was found
-    if (typeof window !== 'undefined' && !window.logger) {
-        console.warn('LibraryScripts: window.logger not found, using fallback logger');
-    }
-    
-    window.version = 'V1.0.76';
+    window.version = 'V1.0.79';
     logger(LOG_LEVEL.TRACE, 'Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
