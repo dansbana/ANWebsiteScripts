@@ -61,40 +61,10 @@
           
           
           if (userChanged) {
-              logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId, "- cleaning up and removing old script");
+              logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId);
               
               // Check if we had a script loaded (meaning previous user was a library account)
               const hadScriptLoaded = scriptLoaded;
-              
-              // Call cleanup function from LibraryScripts.js if it exists
-              if (typeof window.cleanupLibraryScript === 'function') {
-                  try {
-                      logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: Calling cleanupLibraryScript");
-                      window.cleanupLibraryScript();
-                  } catch (e) {
-                      logger(LOG_LEVEL.WARN, "LibraryScriptLoader: Error during cleanup", e);
-                  }
-              }
-              
-              // Remove the old script element safely
-              if (lastLoadedScriptElement) {
-                  try {
-                      // Check if element is still in the DOM before removing
-                      if (lastLoadedScriptElement.parentNode && 
-                          lastLoadedScriptElement.parentNode.contains(lastLoadedScriptElement)) {
-                          lastLoadedScriptElement.remove();
-                      }
-                  } catch (e) {
-                      // If removal fails, try alternative method
-                      try {
-                          if (lastLoadedScriptElement.parentNode) {
-                              lastLoadedScriptElement.parentNode.removeChild(lastLoadedScriptElement);
-                          }
-                      } catch (e2) {
-                          logger(LOG_LEVEL.WARN, "LibraryScriptLoader: Could not remove old script element", e2);
-                      }
-                  }
-              }
               
               // Reset flags to allow reloading
               scriptLoaded = false;
