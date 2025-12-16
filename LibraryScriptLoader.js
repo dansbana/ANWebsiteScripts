@@ -86,8 +86,6 @@
           const userChanged = lastLoadedCorpId !== null && lastLoadedCorpId !== currentCorpId;
           if (!user) return;
           
-          showAccountIdWhenRequested(user);
-
           if (userChanged) {
               logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId);
               
@@ -222,7 +220,8 @@
   
                     // Make user globally available if scripts want it
                     window.libUser = user;
-  
+                    window.showAccountIdWhenRequested(user);
+
                     // Load PROD or TEST
                     loadLibraryScriptForUser(user);
                   })
@@ -245,6 +244,9 @@
         logger(LOG_LEVEL.VERBOSE, "LibraryScriptLoader: poking app to refetch session...");
         try {
           window.dispatchEvent(new Event("focus"));
+          if (window.user) {
+            window.showAccountIdWhenRequested(window.user);
+          }
         } catch (e) {}
         try {
           document.dispatchEvent(new Event("visibilitychange"));
