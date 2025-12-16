@@ -12,7 +12,7 @@
                           VERBOSE: 'VERBOSE'
                       });
     
-    window.version = 'V1.0.106';
+    window.version = 'V1.0.109';
     logger(LOG_LEVEL.TRACE, 'Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -258,13 +258,13 @@
         let runs = 0;
         let shouldStop = false;
         const maxRuns = 10;
-        let currentIntervalMs = 5;  
+        let currentIntervalMs = 3;  
         
         currentWatcherPageType = newPageType;
         
         function runWatcher() {
             runs++;
-            currentIntervalMs += 66;  // Increment to make total time ~3 seconds (3000ms) 
+            currentIntervalMs += currentIntervalMs;  // Increment to make total time ~3 seconds (3000ms) 
             
             try {
                 logger(LOG_LEVEL.VERBOSE, 'Watcher loop number ', runs, " with delary of ", currentIntervalMs, "ms");
