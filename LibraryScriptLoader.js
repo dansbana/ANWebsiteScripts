@@ -86,7 +86,8 @@
           const userChanged = lastLoadedCorpId !== null && lastLoadedCorpId !== currentCorpId;
           if (!user) return;
           
-          
+          showAccountIdWhenRequested(user);
+
           if (userChanged) {
               logger(LOG_LEVEL.TRACE, "LibraryScriptLoader: User changed from", lastLoadedCorpId, "to", currentCorpId);
               
