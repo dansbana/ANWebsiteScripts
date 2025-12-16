@@ -49,8 +49,10 @@
     function showAccountIdWhenRequested(user, version) {
         var scriptVersion = version?version:window.version;
         logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user:", user.corp_id, " ver: ", scriptVersion);
-        if (!ShowAcctIds.length || !user) return;
-    
+        if (!window.ShowAcctIds.length || !user) {
+            logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: No ShowAcctIds or user, returning");
+            return;
+        }
         const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
     
         const selectors = [
