@@ -12,7 +12,7 @@
                           VERBOSE: 'VERBOSE'
                       });
     
-    window.version = 'V1.0.103';
+    window.version = 'V1.0.106';
     logger(LOG_LEVEL.TRACE, 'Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -220,6 +220,7 @@
         
         if (!isCartPage && !isOrderPage) {
             // Not a page we handle - stop any existing watcher but still show the account ID
+            logger(LOG_LEVEL.VERBOSE, 'LS.startWatchersAndObservers: Not a page we handle - stopping watcher.  Page is ', location.pathname);
             window.showAccountIdWhenRequested(libUser, window.version);
             if (libraryTweaksIntervalId) {
                 clearTimeout(libraryTweaksIntervalId);
@@ -235,10 +236,12 @@
         if (libraryTweaksIntervalId) {
             if (currentWatcherPageType !== newPageType) {
                 // Page type changed, stop old watcher
+                logger(LOG_LEVEL.VERBOSE, 'LS.startWatchersAndObservers: Page type changed, stopping old watcher.  Page is ', location.pathname);
                 clearTimeout(libraryTweaksIntervalId);
                 libraryTweaksIntervalId = null;
                 currentWatcherPageType = null;
             } else {
+                logger(LOG_LEVEL.VERBOSE, 'LS.startWatchersAndObservers: Same page type, watcher already running, exiting early.  Page is ', location.pathname);
                 // Same page type, watcher already running, exit early
                 return;
             }
@@ -290,16 +293,17 @@
      */
 
     function runLibTweaksForCurrentPage() {
-        logger(LOG_LEVEL.TRACE, 'CustLibFunc: runLibTweaksForCurrentPage on', location.pathname);
+        logger(LOG_LEVEL.TRACE, 'LS.runLibTweaksForCurrentPage::running on page:', location.pathname);
     
         // Cart / modal / order confirmation tweaks (WP2 / WP3 etc)
         if (location.pathname.startsWith("/checkout/cart")) {
+            logger(LOG_LEVEL.VERBOSE, 'LS.runLibTweaksForCurrentPage: Cart page ');
             changeCartPageFunctionality();
         }
     
         // Orders list / order detail pages – summary tweaks (WP4-like)
         if (location.pathname.startsWith("/account/order")) {
-            logger(LOG_LEVEL.TRACE, 'CustLibFunc: Order Summary Watcher Running');
+            logger(LOG_LEVEL.VERBOSE, 'LS.runLibTweaksForCurrentPage: Order page ');
             changeOrderConfirmationFunctionality();
             changeOrderPage();
         }
