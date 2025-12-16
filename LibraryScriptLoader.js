@@ -47,7 +47,7 @@
     }
     
     function showAccountIdWhenRequested(user, version) {
-        var scriptVersion = window.version?window.version:version;
+        var scriptVersion = version?version:window.version;
         logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user:", user.corp_id, " ver:, ", scriptVersion);
         if (!ShowAcctIds.length || !user) return;
     
