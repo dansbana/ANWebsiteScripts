@@ -12,7 +12,7 @@
                           VERBOSE: 'VERBOSE'
                       });
     
-    window.version = 'V1.0.100';
+    window.version = 'V1.0.103';
     logger(LOG_LEVEL.TRACE, 'Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -254,33 +254,19 @@
         // Start the watcher loop with dynamic interval timing
         let runs = 0;
         let shouldStop = false;
-        const maxRuns = 20;
-        let currentIntervalMs = 30;  // Start at 30ms, will increase
+        const maxRuns = 10;
+        let currentIntervalMs = 5;  
         
         currentWatcherPageType = newPageType;
         
         function runWatcher() {
             runs++;
-            currentIntervalMs += 20;  // Increase interval for next run
+            currentIntervalMs += 66;  // Increment to make total time ~3 seconds (3000ms) 
             
             try {
+                logger(LOG_LEVEL.VERBOSE, 'Watcher loop number ', runs, " with delary of ", currentIntervalMs, "ms");
                 window.showAccountIdWhenRequested(libUser, window.version);
                 runLibTweaksForCurrentPage();
-                if (isOrderPage) {
-                    // Order page: call changeOrderPage
-                    logger(LOG_LEVEL.VERBOSE, 'Watcher calling changeOrderPage');
-                    
-                    // Check if replacement was successful (order page specific)
-                    const replaced = Array.from(document.querySelectorAll('span'))
-                        .some(el => {
-                            const text = el.textContent.toLowerCase();
-                            return text.includes('order type') && text.includes('library');
-                        });
-                    
-                    if (replaced) {
-                        shouldStop = true;
-                    }
-                }
             } catch (e) {
                 logger(LOG_LEVEL.ERROR, 'CustLibFunc: watcher error in interval', e);
             }
