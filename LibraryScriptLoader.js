@@ -66,8 +66,11 @@
         ];
     
         const els = document.querySelectorAll(selectors.join(","));
-        if (!els.length) return;
-    
+        if (!els.length) {
+            logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: No elements found");
+            return;
+        }
+        
         els.forEach(el => {
           const text = el.textContent.trim().toLowerCase();
           const matches = namesToShow.some(name => text.includes(name));
