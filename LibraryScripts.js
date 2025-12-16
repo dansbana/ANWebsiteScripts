@@ -222,7 +222,7 @@
             // Not a page we handle - stop any existing watcher but still show the account ID
             window.showAccountIdWhenRequested(libUser, window.version);
             if (libraryTweaksIntervalId) {
-                clearInterval(libraryTweaksIntervalId);
+                clearTimeout(libraryTweaksIntervalId);
                 libraryTweaksIntervalId = null;
                 currentWatcherPageType = null;
             }
@@ -235,7 +235,7 @@
         if (libraryTweaksIntervalId) {
             if (currentWatcherPageType !== newPageType) {
                 // Page type changed, stop old watcher
-                clearInterval(libraryTweaksIntervalId);
+                clearTimeout(libraryTweaksIntervalId);
                 libraryTweaksIntervalId = null;
                 currentWatcherPageType = null;
             } else {
@@ -251,16 +251,17 @@
             observeOrderSummary();
         }
         
-        // Start the watcher loop 
+        // Start the watcher loop with dynamic interval timing
         let runs = 0;
         let shouldStop = false;
-        const maxRuns = isCartPage ? 20 : 40;  // Cart: 20 runs, Order: 40 runs
-        const intervalMs = isCartPage ? 125 : 250;  // Cart: 125ms, Order: 250ms
+        const maxRuns = 20;
+        let currentIntervalMs = 30;  // Start at 30ms, will increase
         
         currentWatcherPageType = newPageType;
         
-        libraryTweaksIntervalId = setInterval(() => {
+        function runWatcher() {
             runs++;
+            currentIntervalMs += 20;  // Increase interval for next run
             
             try {
                 window.showAccountIdWhenRequested(libUser, window.version);
@@ -268,7 +269,6 @@
                 if (isOrderPage) {
                     // Order page: call changeOrderPage
                     logger(LOG_LEVEL.VERBOSE, 'Watcher calling changeOrderPage');
-                    changeOrderPage();
                     
                     // Check if replacement was successful (order page specific)
                     const replaced = Array.from(document.querySelectorAll('span'))
@@ -286,11 +286,16 @@
             }
             
             if (shouldStop || runs >= maxRuns) {
-                clearInterval(libraryTweaksIntervalId);
                 libraryTweaksIntervalId = null;
                 currentWatcherPageType = null;
+            } else {
+                // Schedule next run with increased interval
+                libraryTweaksIntervalId = setTimeout(runWatcher, currentIntervalMs);
             }
-        }, intervalMs);
+        }
+        
+        // Start the first run
+        libraryTweaksIntervalId = setTimeout(runWatcher, currentIntervalMs);
     }
 
     /**
@@ -310,6 +315,7 @@
         if (location.pathname.startsWith("/account/order")) {
             logger(LOG_LEVEL.TRACE, 'CustLibFunc: Order Summary Watcher Running');
             changeOrderConfirmationFunctionality();
+            changeOrderPage();
         }
     }
 
