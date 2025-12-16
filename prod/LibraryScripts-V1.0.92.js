@@ -12,7 +12,7 @@
                           VERBOSE: 'VERBOSE'
                       });
     
-    window.version = 'V1.0.91';
+    window.version = 'V1.0.92';
     logger(LOG_LEVEL.TRACE, 'Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -220,7 +220,7 @@
         
         if (!isCartPage && !isOrderPage) {
             // Not a page we handle - stop any existing watcher but still show the account ID
-            window.showAccountIdWhenRequested(libUser, version);
+            window.showAccountIdWhenRequested(libUser, window.version);
             if (libraryTweaksIntervalId) {
                 clearInterval(libraryTweaksIntervalId);
                 libraryTweaksIntervalId = null;
@@ -263,7 +263,7 @@
             runs++;
             
             try {
-                window.showAccountIdWhenRequested(libUser, version);
+                window.showAccountIdWhenRequested(libUser, window.version);
                 if (isCartPage) {
                     // Cart page: call changeCartPageFunctionality
                     logger(LOG_LEVEL.VERBOSE, 'Watcher calling changeCartPageFunctionality');
