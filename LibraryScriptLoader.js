@@ -72,7 +72,8 @@
           const text = el.textContent.trim().toLowerCase();
           const matches = namesToShow.some(name => text.includes(name));
           if (!matches) return;
-          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${scriptVersion})`;
+          logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Inserting account ID for user:", user.corp_id, " ver: ", scriptVersion);
+          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${scriptVersion?scriptVersion:"None"})`;
         });
     } 
 
