@@ -41,15 +41,24 @@ function getVersionInfo() {
     const allFiles = [...distFiles, ...prodFiles];
     
     // Match both old format (without dash) and new format (with dash) for backward compatibility
-    const versionPattern = new RegExp(`^LibraryScripts-?V${version.replace(/\./g, '\\.')}\\.(\\d+)(?:\\.min)?\\.js$`);
+    // Pattern must match exactly: LibraryScripts-V{version}.{increment}.js or LibraryScripts-V{version}.{increment}.min.js
+    // The version must be followed by a dot, then ONLY digits (the increment), then optional .min, then .js
+    // This ensures we don't match files like V1.0.110 when looking for version 1.1
+    const escapedVersion = version.replace(/\./g, '\\.');
+    const versionPattern = new RegExp(`^LibraryScripts-?V${escapedVersion}\\.(\\d+)(?:\\.min)?\\.js$`);
     
     let maxIncrement = 0;
     
     allFiles.forEach(file => {
+        // Only process files that start with LibraryScripts-V
+        if (!file.startsWith('LibraryScripts-V') && !file.startsWith('LibraryScriptsV')) {
+            return;
+        }
+        
         const match = file.match(versionPattern);
         if (match) {
             const increment = parseInt(match[1], 10);
-            if (increment > maxIncrement) {
+            if (!isNaN(increment) && increment > maxIncrement) {
                 maxIncrement = increment;
             }
         }

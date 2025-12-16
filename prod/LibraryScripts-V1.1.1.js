@@ -10,9 +10,9 @@
                           WARN: 'WARN',
                           TRACE: 'TRACE',
                           VERBOSE: 'VERBOSE'
-                      });
+                      }); 
     
-    window.version = 'V1.0.109';
+    window.version = 'V1.1.1';
     logger(LOG_LEVEL.TRACE, 'Loading Custom Library Functionaltiy', location.pathname);
     // Track whether we've confirmed this is a library account
     // Track our temporary re-apply interval for library tweaks
@@ -258,7 +258,7 @@
         let runs = 0;
         let shouldStop = false;
         const maxRuns = 10;
-        let currentIntervalMs = 3;  
+        let currentIntervalMs = 3;   
         
         currentWatcherPageType = newPageType;
         
