@@ -67,8 +67,6 @@
           const matches = namesToShow.some(name => text.includes(name));
           if (!matches) return;
     
-          if (el.textContent.includes("ID:")) return; // avoid double-label
-
           logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user2:", user.corp_id, " ver2: ", scriptVersion);    
           el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${scriptVersion})`;
         });
