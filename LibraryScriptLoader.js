@@ -49,8 +49,12 @@
     function showAccountIdWhenRequested(user, version) {
         var scriptVersion = version?version:window.version;
         logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user:", user.corp_id, " ver: ", scriptVersion);
-        if (!window.ShowAcctIds.length || !user) {
-            logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: No ShowAcctIds or user, returning");
+        if (!window.ShowAcctIds.length) {
+            logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: No ShowAcctIds");
+            return;
+        }
+        else if (!user) {
+            logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: No User");
             return;
         }
         const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
@@ -68,8 +72,6 @@
           const text = el.textContent.trim().toLowerCase();
           const matches = namesToShow.some(name => text.includes(name));
           if (!matches) return;
-    
-          logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user2:", user.corp_id, " ver2: ", scriptVersion);    
           el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${scriptVersion})`;
         });
     } 
