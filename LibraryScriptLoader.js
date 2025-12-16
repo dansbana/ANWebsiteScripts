@@ -48,7 +48,7 @@
     
     function showAccountIdWhenRequested(user, version) {
         var scriptVersion = version?version:window.version;
-        logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user:", user.corp_id, " ver:, ", scriptVersion);
+        logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user:", user.corp_id, " ver: ", scriptVersion);
         if (!ShowAcctIds.length || !user) return;
     
         const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
@@ -68,7 +68,8 @@
           if (!matches) return;
     
           if (el.textContent.includes("ID:")) return; // avoid double-label
-    
+
+          logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user2:", user.corp_id, " ver2: ", scriptVersion);    
           el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${scriptVersion})`;
         });
     } 
