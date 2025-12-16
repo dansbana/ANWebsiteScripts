@@ -45,7 +45,34 @@
       const v = window[name];
       return Array.isArray(v) ? v : [];
     }
-      
+    
+    function showAccountIdWhenRequested(user) {
+        logger(LOG_LEVEL.VERBOSE, "showAccountIdWhenRequested: Showing account ID for user:", user.corp_id);
+        if (!ShowAcctIds.length || !user) return;
+    
+        const namesToShow = ShowAcctIds.map(n => n.toLowerCase());
+    
+        const selectors = [
+          "button.ant-btn-primary.styled_btn span", // desktop account button
+          ".ant-avatar-string div",                // avatar initials element
+          ".ant-drawer-title",                     // mobile drawer title
+        ];
+    
+        const els = document.querySelectorAll(selectors.join(","));
+        if (!els.length) return;
+    
+        els.forEach(el => {
+          const text = el.textContent.trim().toLowerCase();
+          const matches = namesToShow.some(name => text.includes(name));
+          if (!matches) return;
+    
+          if (el.textContent.includes("ID:")) return; // avoid double-label
+    
+          el.textContent = `${user.company || user.first_name} (ID: ${user.corp_id} VER: ${window.version})`;
+        });
+    } 
+
+    window.showAccountIdWhenRequested = showAccountIdWhenRequested;
 
     let scriptLoaded = false;
     let lastLoadedCorpId = null;
