@@ -22,6 +22,7 @@
     // Observer state objects (passed by reference)
     const checkoutButtonsObserverState = { observer: null, container: null };
     const orderSummaryObserverState = { observer: null, container: null };
+    const orderSummaryTextObserverState = { observer: null, container: null };
 
     // Helper function to observe an element with idempotent behavior
     function observeElement(observerState, selector, callback) {
@@ -213,6 +214,52 @@
         );
     }
 
+    function observeOrderSummaryText() {
+        // Find the div containing "Order Summary" text
+        // This selector looks for a div that contains a strong element with "Order Summary"
+        const findOrderSummaryElement = () => {
+            // Try to find the element by searching for divs containing "Order Summary"
+            const divs = document.querySelectorAll('div');
+            for (const div of divs) {
+                const strong = div.querySelector('strong');
+                if (strong && strong.textContent.trim() === 'Order Summary') {
+                    return div;
+                }
+            }
+            return null;
+        };
+
+        const element = findOrderSummaryElement();
+        if (!element) return;
+
+        // If observer exists and is still observing the same element, exit early
+        if (orderSummaryTextObserverState.observer) {
+            if (orderSummaryTextObserverState.container === element && 
+                document.contains(element)) {
+                return;
+            } else {
+                // Element changed or was removed, disconnect old observer
+                orderSummaryTextObserverState.observer.disconnect();
+                orderSummaryTextObserverState.observer = null;
+                orderSummaryTextObserverState.container = null;
+            }
+        }
+
+        // Create new observer
+        orderSummaryTextObserverState.observer = new MutationObserver(() => {
+            logger(LOG_LEVEL.VERBOSE, 'Order Summary text changed, updating cart buttons');
+            runLibTweaksForCurrentPage();
+        });
+
+        orderSummaryTextObserverState.observer.observe(element, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        orderSummaryTextObserverState.container = element;
+    }
+
     function startWatchersAndObservers() {
         // Determine page type
         const isCartPage = location.pathname.startsWith("/checkout/cart");
@@ -250,6 +297,7 @@
         // Start the appropriate observer
         if (isCartPage) {
             observeCheckoutButtons();
+            observeOrderSummaryText();
         } else if (isOrderPage) {
             observeOrderSummary();
         }
@@ -270,6 +318,10 @@
                 logger(LOG_LEVEL.VERBOSE, 'Watcher loop number ', runs, " with delary of ", currentIntervalMs, "ms");
                 window.showAccountIdWhenRequested(libUser, window.version);
                 runLibTweaksForCurrentPage();
+                // Try to set up Order Summary observer if on cart page and not already set up
+                if (currentWatcherPageType === 'cart' && !orderSummaryTextObserverState.observer) {
+                    observeOrderSummaryText();
+                }
             } catch (e) {
                 logger(LOG_LEVEL.ERROR, 'CustLibFunc: watcher error in interval', e);
             }
@@ -307,7 +359,7 @@
             changeOrderConfirmationFunctionality();
             changeOrderPage();
         }
-    }
+    } 
 
 
     /**
