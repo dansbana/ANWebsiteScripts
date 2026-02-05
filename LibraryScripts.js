@@ -426,6 +426,22 @@
               })
               .catch(function () {});
           }
+          else if (url && url.indexOf("/customer/cart/removeItem") !== -1) {
+            logger(LOG_LEVEL.VERBOSE, "LibraryScript: Cart item removed, URL:", url);
+            result
+              .then(function (response) {
+                // Wait for response to complete, then run tweaks
+                // Use a small delay to ensure the DOM has updated after the item is removed
+                setTimeout(function () {
+                  logger(LOG_LEVEL.TRACE, "LibraryScript: Cart removeItem completed, running tweaks");
+                  runLibTweaksForCurrentPage();
+                  startWatchersAndObservers();
+                }, 100);
+              })
+              .catch(function (e) {
+                logger(LOG_LEVEL.ERROR, "LibraryScript: Error in removeItem fetch", e);
+              });
+          }
           else {
             logger(LOG_LEVEL.VERBOSE, "LibraryScript: Ignoring Fetch for URL:", url);
           }
